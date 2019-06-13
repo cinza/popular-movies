@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="gridview_movies" type="id">listview_movies</item>
+</resources>
