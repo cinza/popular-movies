@@ -18,12 +18,12 @@ public class Movie {
     String synopsis;
 
     @SerializedName ("rating")
-    Integer rating;
+    double rating;
 
     @SerializedName ("release")
     String release;
 
-    public Movie (String id, String title, String urlImage, String synopsis, int rating, String release){
+    public Movie (String id, String title, String urlImage, String synopsis, double rating, String release){
         this.id = id;
         this.title = title;
         this.urlImage = urlImage;
@@ -55,10 +55,22 @@ public class Movie {
     public String getUrlImage(){
         return urlImage;
     }
-    public void setSynopsis(){
-        
+    public void setSynopsis(String synopsis){
+        this.synopsis = synopsis
     }
     public String getSynopsis() {
         return synopsis;
     }
+
+    public void setRating(double rating){
+        this.rating = rating;
+    }
+
+    public double getRating(){
+        return rating;
+    }
+
+    public void
+
+
 }
