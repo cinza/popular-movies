@@ -4,8 +4,8 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetroFitClient {
-    static final String MOVIE_URL="https://api.themoviedb.org/3/movie";
-    static final String MOVIE_IMG ="https://image.tmdb.org/t/p/w342";
+    static final String MOVIE_URL="https://api.themoviedb.org/3/movie/";
+
 
     private static Retrofit retrofit;
 

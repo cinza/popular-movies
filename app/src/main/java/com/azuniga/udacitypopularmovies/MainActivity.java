@@ -1,33 +1,138 @@
 package com.azuniga.udacitypopularmovies;
 
+import android.app.ProgressDialog;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
+
+import com.azuniga.udacitypopularmovies.utils.APINetwork;
+import com.azuniga.udacitypopularmovies.utils.RetroFitClient;
+
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements RecyclerViewAdapter.ItemClickListener {
     RecyclerViewAdapter adapter;
+    public String sortOrder = "popular";
+    public List<Movie> movies;
+    ProgressDialog progressDialog = null ;
+    public static final String ID_MOVIE = "movie_id";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // data to populate the RecyclerView with
-        String[] data = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48"};
+        progressDialog = new ProgressDialog(MainActivity.this);
+        progressDialog.setMessage("Loading movies...");
 
-        // set up the RecyclerView
+        loadPopularMovies();
+
+
+
+    }
+    private void loadPopularMovies(){
+        progressDialog.show();
+        APINetwork service = RetroFitClient.getRetrofitInstance().create(APINetwork.class);
+        Call<MovieAPIResponse> getMovies = service.getPopularMovies ( APINetwork.MOVIE_TOKEN);
+        getMovies.enqueue (new Callback<MovieAPIResponse> () {
+            @Override
+            public void onResponse(Call<MovieAPIResponse> call, Response<MovieAPIResponse> response) {
+                progressDialog.dismiss();
+                if(response.isSuccessful()) {
+                    movies = response.body().getResults ();
+                    createDataList(movies);
+                } else {
+                    System.out.println(response.errorBody());
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<MovieAPIResponse> call, Throwable t) {
+                progressDialog.dismiss();
+                Toast.makeText(MainActivity.this, "Something went wrong...Please try later!", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    private void loadTopRatedMovies(){
+        progressDialog.show();
+        APINetwork service = RetroFitClient.getRetrofitInstance().create(APINetwork.class);
+        Call<MovieAPIResponse> getTopRatedMovies = service.getTopRatedMovies(APINetwork.MOVIE_TOKEN);
+        getTopRatedMovies.enqueue (new Callback<MovieAPIResponse> () {
+            @Override
+            public void onResponse(Call<MovieAPIResponse> call, Response<MovieAPIResponse> response) {
+                progressDialog.dismiss();
+                if(response.isSuccessful()) {
+                    movies = response.body().getResults ();
+                    createDataList(movies);
+                } else {
+                    System.out.println(response.errorBody());
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<MovieAPIResponse> call, Throwable t) {
+                progressDialog.dismiss();
+                Toast.makeText(MainActivity.this, "Something went wrong...Please try later!", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    private void createDataList(List<Movie> movieList){
+
         RecyclerView recyclerView = findViewById(R.id.rvMovies);
-        int numberOfColumns = 6;
+        adapter= new RecyclerViewAdapter (this, movieList);
+        int numberOfColumns = 2;
         recyclerView.setLayoutManager(new GridLayoutManager (this, numberOfColumns));
-        adapter= new RecyclerViewAdapter (this, data);
         adapter.setClickListener(this);
         recyclerView.setAdapter(adapter);
     }
 
     @Override
-    public void onItemClick(View view, int position) {
-        Log.i("TAG", "You clicked number " + adapter.getItem(position) + ", which is at cell position " + position);
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.settings, menu);
+        return true;
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch (id) {
+            case R.id.popularMenu:
+                if (item.isChecked()) item.setChecked(false);
+                else item.setChecked(true);
+                loadPopularMovies ();
+            case R.id.topRatedMenu:
+                if (item.isChecked()) item.setChecked(false);
+                else item.setChecked(true);
+                loadTopRatedMovies ();
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+
+    }
+
+    @Override
+    public void onItemClick(View view, int id) {
+        Intent intentDetailMovie = new Intent(this, MovieDetail.class);
+        String idMovie = adapter.getItem(id);
+        intentDetailMovie.putExtra(ID_MOVIE, idMovie);
+        startActivity(intentDetailMovie);
+
+    }
+
 }

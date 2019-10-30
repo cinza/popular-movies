@@ -11,16 +11,19 @@ public class Movie {
     @SerializedName ("title")
     String title;
 
-    @SerializedName ("urlImage")
+    @SerializedName ("poster_path")
     String urlImage;
 
-    @SerializedName ("synopsis")
+    @SerializedName("backdrop_path")
+    String urlBackground;
+
+    @SerializedName ("overview")
     String synopsis;
 
-    @SerializedName ("rating")
+    @SerializedName ("vote_average")
     double rating;
 
-    @SerializedName ("release")
+    @SerializedName ("release_date")
     String release;
 
     public Movie (String id, String title, String urlImage, String synopsis, double rating, String release){
@@ -55,8 +58,16 @@ public class Movie {
     public String getUrlImage(){
         return urlImage;
     }
+
+    public void setUrlBackground(String urlBackground){
+        this.urlBackground = urlBackground;
+    }
+
+    public String getUrlBackground(){
+        return urlBackground;
+    }
     public void setSynopsis(String synopsis){
-        this.synopsis = synopsis
+        this.synopsis = synopsis;
     }
     public String getSynopsis() {
         return synopsis;
@@ -70,7 +81,9 @@ public class Movie {
         return rating;
     }
 
-    public void
+    public void setRelease(String release){ this.release = release;}
 
-
+    public String getRelease() {
+        return release;
+    }
 }

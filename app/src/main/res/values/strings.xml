@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">UdacityPopularMovies</string>
+    <string name="app_name">Popular Movies 🎬</string>
+    <string name="action_settings">Sort by</string>
+    <string name="popular">Popular</string>
+    <string name="top_rated">Top Rated</string>
+    <string name="backdrop">backdrop_image</string>
 </resources>

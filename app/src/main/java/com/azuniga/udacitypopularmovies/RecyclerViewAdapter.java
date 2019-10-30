@@ -6,16 +6,22 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
+import java.util.List;
+
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
-    private String[] mData;
+    private List<Movie> dataList;
     private LayoutInflater mInflater;
     private ItemClickListener mItemClickListener;
+    static final String BASE_URL_IMG ="https://image.tmdb.org/t/p/w500/";
 
-    RecyclerViewAdapter(Context context, String[] data){
+    RecyclerViewAdapter(Context context, List<Movie> data){
         this.mInflater = LayoutInflater.from(context);
-        this.mData = data;
+        this.dataList = data;
     }
 
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -25,25 +31,27 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int i) {
-        holder.myTextView.setText(mData[i]);
+        String URL = BASE_URL_IMG + dataList.get(i).getUrlImage();
+        Picasso.get()
+                .load(URL)
+                .into(holder.movieImage);
+
     }
 
 
 
-    // total number of cells
     @Override
     public int getItemCount() {
-        return mData.length;
+        return dataList.size();
     }
 
 
-    // stores and recycles views as they are scrolled off screen
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        TextView myTextView;
+        ImageView movieImage;
 
         ViewHolder(View itemView) {
             super(itemView);
-            myTextView = itemView.findViewById(R.id.movie_name_preview);
+            movieImage = itemView.findViewById(R.id.movie_thumbnail);
             itemView.setOnClickListener(this);
         }
 
@@ -53,9 +61,11 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         }
     }
 
-    // convenience method for getting data at click position
+    // method to retrieve id from movie
     String getItem(int id) {
-        return mData[id];
+        Movie movieSelected = dataList.get(id);
+        String movieId = movieSelected.getId();
+        return movieId;
     }
 
 
