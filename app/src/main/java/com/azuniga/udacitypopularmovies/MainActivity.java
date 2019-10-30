@@ -1,7 +1,10 @@
 package com.azuniga.udacitypopularmovies;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -36,8 +39,13 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
 
         progressDialog = new ProgressDialog(MainActivity.this);
         progressDialog.setMessage("Loading movies...");
+        if(isOnline()){
+            loadPopularMovies();
+        }else{
+            Toast.makeText(MainActivity.this, "No internet connection! Please check your network", Toast.LENGTH_SHORT).show();
 
-        loadPopularMovies();
+        }
+
 
 
 
@@ -124,6 +132,12 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
                 return super.onOptionsItemSelected(item);
         }
 
+    }
+    public boolean isOnline() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
     @Override
