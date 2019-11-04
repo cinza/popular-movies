@@ -24,7 +24,7 @@ public class MovieDetail extends AppCompatActivity {
     TextView mSypnosis;
     ImageView mThumbnailMovie;
     static final String BASE_URL_IMG ="https://image.tmdb.org/t/p/w342/";
-    ProgressDialog progressDialog = null ;
+  //  ProgressDialog progressDialog = null ;
 
 
     @Override
@@ -38,9 +38,7 @@ public class MovieDetail extends AppCompatActivity {
         mRating = findViewById (R.id.rateMovie);
         mReleaseDate = findViewById (R.id.releaseDate);
         mSypnosis = findViewById (R.id.sypnosisMovie);
-        progressDialog = new ProgressDialog(MovieDetail.this);
-        progressDialog.setMessage("Loading Movie ");
-        progressDialog.show();
+
         loadMovie(idMovie);
     }
 
@@ -61,7 +59,6 @@ public class MovieDetail extends AppCompatActivity {
                     mRating.setText(Double.toString (movieDetail.getRating()));
                     mReleaseDate.setText (movieDetail.getRelease());
                     mSypnosis.setText(movieDetail.getSynopsis());
-                    progressDialog.hide();
 
 
                 } else {
