@@ -1,5 +1,6 @@
 package com.azuniga.udacitypopularmovies;
 
+import com.azuniga.udacitypopularmovies.models.Movie;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;

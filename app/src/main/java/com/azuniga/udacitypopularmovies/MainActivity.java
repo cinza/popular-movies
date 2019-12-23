@@ -3,19 +3,20 @@ package com.azuniga.udacitypopularmovies;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.azuniga.udacitypopularmovies.models.Movie;
 import com.azuniga.udacitypopularmovies.utils.APINetwork;
 import com.azuniga.udacitypopularmovies.utils.RetroFitClient;
 
@@ -27,20 +28,29 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements RecyclerViewAdapter.ItemClickListener {
     RecyclerViewAdapter adapter;
-    public String sortOrder = "popular";
+    public static final String preferenceFilterBy = "PrefFilterBy";
     public List<Movie> movies;
     ProgressDialog progressDialog = null ;
     public static final String ID_MOVIE = "movie_id";
+    public static final String SortBy = "sortBy";
+    SharedPreferences settings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         progressDialog = new ProgressDialog(MainActivity.this);
         progressDialog.setMessage("Loading movies...");
+        settings = getSharedPreferences(preferenceFilterBy,Context.MODE_PRIVATE);
+
         if(isOnline()){
-            loadPopularMovies();
+            String preference = settings.getString(SortBy, "");
+            if (preference == "popular")
+                loadPopularMovies();
+            else if (preference == "topRated")
+                loadTopRatedMovies ();
+                else
+                loadPopularMovies();
         }else{
             Toast.makeText(MainActivity.this, "No internet connection! Please check your network", Toast.LENGTH_SHORT).show();
 
@@ -116,23 +126,44 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        settings = getSharedPreferences(preferenceFilterBy, Context.MODE_PRIVATE);
+        String preference = settings.getString(SortBy, "");
+        if (preference == "popular")
+            menu.findItem(R.id.popularMenu).setChecked(true);
+        else if (preference == "topRated")
+            menu.findItem(R.id.topRatedMenu).setChecked(true);
+
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
+        SharedPreferences.Editor editorPreference = settings.edit();
         switch (id) {
             case R.id.popularMenu:
                 if (item.isChecked()) item.setChecked(false);
                 else item.setChecked(true);
-                loadPopularMovies ();
+                editorPreference.putString(SortBy, "popular");
+                loadPopularMovies();
+
+                break;
             case R.id.topRatedMenu:
                 if (item.isChecked()) item.setChecked(false);
                 else item.setChecked(true);
+                editorPreference.putString(SortBy, "topRated");
                 loadTopRatedMovies ();
 
+                break;
             default:
                 return super.onOptionsItemSelected(item);
         }
-
+        editorPreference.commit();
+        return super.onOptionsItemSelected(item);
     }
+
     public boolean isOnline() {
         ConnectivityManager cm =
                 (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);

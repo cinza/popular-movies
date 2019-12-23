@@ -1,6 +1,5 @@
 package com.azuniga.udacitypopularmovies;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -8,6 +7,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.azuniga.udacitypopularmovies.models.Movie;
 import com.azuniga.udacitypopularmovies.utils.APINetwork;
 import com.azuniga.udacitypopularmovies.utils.RetroFitClient;
 import com.squareup.picasso.Picasso;
@@ -24,7 +24,6 @@ public class MovieDetail extends AppCompatActivity {
     TextView mSypnosis;
     ImageView mThumbnailMovie;
     static final String BASE_URL_IMG ="https://image.tmdb.org/t/p/w342/";
-  //  ProgressDialog progressDialog = null ;
 
 
     @Override
