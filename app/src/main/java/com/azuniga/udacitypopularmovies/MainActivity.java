@@ -6,17 +6,21 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
+
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
 import com.azuniga.udacitypopularmovies.models.Movie;
+import com.azuniga.udacitypopularmovies.models.MovieAPIResponse;
+import com.azuniga.udacitypopularmovies.database.MoviesViewModel;
 import com.azuniga.udacitypopularmovies.utils.APINetwork;
 import com.azuniga.udacitypopularmovies.utils.RetroFitClient;
 
@@ -32,8 +36,14 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
     public List<Movie> movies;
     ProgressDialog progressDialog = null ;
     public static final String ID_MOVIE = "movie_id";
+    public static final String FAVORITE_MOVIE = "is_favorite";
     public static final String SortBy = "sortBy";
     SharedPreferences settings;
+    private MoviesViewModel  moviesViewModel;
+    public boolean favSelected = false;
+
+    private Menu menu;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
         progressDialog = new ProgressDialog(MainActivity.this);
         progressDialog.setMessage("Loading movies...");
         settings = getSharedPreferences(preferenceFilterBy,Context.MODE_PRIVATE);
+        moviesViewModel = new ViewModelProvider(this).get(MoviesViewModel.class);
 
         if(isOnline()){
             String preference = settings.getString(SortBy, "");
@@ -50,14 +61,13 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
             else if (preference == "topRated")
                 loadTopRatedMovies ();
                 else
-                loadPopularMovies();
+                    favSelected=true;
+                loadFavoritesMovies();
+
         }else{
             Toast.makeText(MainActivity.this, "No internet connection! Please check your network", Toast.LENGTH_SHORT).show();
 
         }
-
-
-
 
     }
     private void loadPopularMovies(){
@@ -84,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
             }
         });
     }
+
     private void loadTopRatedMovies(){
         progressDialog.show();
         APINetwork service = RetroFitClient.getRetrofitInstance().create(APINetwork.class);
@@ -93,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
             public void onResponse(Call<MovieAPIResponse> call, Response<MovieAPIResponse> response) {
                 progressDialog.dismiss();
                 if(response.isSuccessful()) {
-                    movies = response.body().getResults ();
+                     movies = response.body().getResults ();
                     createDataList(movies);
                 } else {
                     System.out.println(response.errorBody());
@@ -108,8 +119,19 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
             }
         });
     }
-    private void createDataList(List<Movie> movieList){
 
+    private  void loadFavoritesMovies(){
+
+        moviesViewModel.getFavoritesMovies().observe(this, new Observer<List<Movie>>() {
+            @Override
+            public void onChanged(List<Movie> movies) {
+                createDataList(movies);
+
+            }
+        });
+
+    }
+    private void createDataList(List<Movie> movieList){
         RecyclerView recyclerView = findViewById(R.id.rvMovies);
         adapter= new RecyclerViewAdapter (this, movieList);
         int numberOfColumns = 2;
@@ -120,8 +142,8 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.settings, menu);
+        this.menu = menu;
+        getMenuInflater().inflate(R.menu.settings, menu);
         return true;
     }
 
@@ -130,23 +152,38 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
         super.onPrepareOptionsMenu(menu);
         settings = getSharedPreferences(preferenceFilterBy, Context.MODE_PRIVATE);
         String preference = settings.getString(SortBy, "");
-        if (preference == "popular")
-            menu.findItem(R.id.popularMenu).setChecked(true);
-        else if (preference == "topRated")
-            menu.findItem(R.id.topRatedMenu).setChecked(true);
+        switch(preference){
+            case "popular":
+                menu.findItem(R.id.popularMenu).setChecked(true);
+                favSelected = false;
+                break;
+            case "topRated":
+                menu.findItem(R.id.topRatedMenu).setChecked(true);
+                favSelected = false;
+                break;
+            case "favorites":
+                favSelected=true;
+                menu.findItem(R.id.action_favorite).setIcon(getResources().getDrawable(R.drawable.ic_favorite_active));
 
+                break;
+            default:
+                break;
+        }
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
+
         SharedPreferences.Editor editorPreference = settings.edit();
         switch (id) {
             case R.id.popularMenu:
                 if (item.isChecked()) item.setChecked(false);
                 else item.setChecked(true);
                 editorPreference.putString(SortBy, "popular");
+                menu.getItem(0).setIcon(getResources().getDrawable(R.drawable.ic_favorite));
+                favSelected = false;
                 loadPopularMovies();
 
                 break;
@@ -154,11 +191,19 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
                 if (item.isChecked()) item.setChecked(false);
                 else item.setChecked(true);
                 editorPreference.putString(SortBy, "topRated");
+                menu.getItem(0).setIcon(getResources().getDrawable(R.drawable.ic_favorite));
+                favSelected = false;
                 loadTopRatedMovies ();
 
                 break;
+            case R.id.action_favorite:
+                loadFavoritesMovies();
+                favSelected=true;
+                item.setIcon(getResources().getDrawable(R.drawable.ic_favorite_active));
+                editorPreference.putString(SortBy, "favorites");
+                break;
             default:
-                return super.onOptionsItemSelected(item);
+                break;
         }
         editorPreference.commit();
         return super.onOptionsItemSelected(item);
@@ -176,6 +221,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
         Intent intentDetailMovie = new Intent(this, MovieDetail.class);
         String idMovie = adapter.getItem(id);
         intentDetailMovie.putExtra(ID_MOVIE, idMovie);
+        intentDetailMovie.putExtra(FAVORITE_MOVIE, favSelected);
         startActivity(intentDetailMovie);
 
     }

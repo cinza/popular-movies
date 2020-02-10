@@ -3,26 +3,41 @@ package com.azuniga.udacitypopularmovies.models;
 
 import com.google.gson.annotations.SerializedName;
 
+import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
+@Entity(tableName = "favorites_movies")
 public class Movie {
 
+    @PrimaryKey
+    @NonNull
+    @ColumnInfo(name = "id")
     @SerializedName ("id")
     String id;
 
+    @ColumnInfo(name = "title")
     @SerializedName ("title")
     String title;
 
+    @ColumnInfo(name = "poster_path")
     @SerializedName ("poster_path")
     String urlImage;
 
+    @ColumnInfo(name = "backdrop_path")
     @SerializedName("backdrop_path")
     String urlBackground;
 
+    @ColumnInfo(name = "overview")
     @SerializedName ("overview")
     String synopsis;
 
+    @ColumnInfo(name = "vote_average")
     @SerializedName ("vote_average")
     double rating;
 
+    @ColumnInfo(name = "release_date")
     @SerializedName ("release_date")
     String release;
 
@@ -86,4 +101,14 @@ public class Movie {
     public String getRelease() {
         return release;
     }
+
+   // overwrite equals method to check from a list if a movie is already on the list
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof Movie){
+            return this.id.equals(((Movie) obj).id);
+        } else return false;
+    }
+
+
 }

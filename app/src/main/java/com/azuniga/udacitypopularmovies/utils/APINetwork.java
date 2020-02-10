@@ -1,7 +1,9 @@
 package com.azuniga.udacitypopularmovies.utils;
 
 import com.azuniga.udacitypopularmovies.models.Movie;
-import com.azuniga.udacitypopularmovies.MovieAPIResponse;
+import com.azuniga.udacitypopularmovies.models.MovieAPIResponse;
+import com.azuniga.udacitypopularmovies.models.ReviewAPIResponse;
+import com.azuniga.udacitypopularmovies.models.VideoAPIResponse;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -25,13 +27,13 @@ public interface APINetwork {
             @Path("id") String id,
             @Query("api_key") String token);
 
-    @GET("{id}")
-    Call<Movie> getTrailers(
+    @GET("{id}/videos")
+    Call<VideoAPIResponse> getVideos(
             @Path("id") String id,
             @Query("api_key") String token);
 
-    @GET("{id}")
-    Call<Movie> getReviews(
+    @GET("{id}/reviews")
+    Call<ReviewAPIResponse> getReviews(
             @Path("id") String id,
             @Query("api_key") String token);
 
