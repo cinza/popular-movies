@@ -12,7 +12,8 @@ import retrofit2.http.Query;
 
 
 public interface APINetwork {
-    static final String MOVIE_TOKEN="4810cdb903f6c99d9a2584aa26b24220";
+    //ADD YOUR MOVIE KEY HERE
+    String MOVIE_TOKEN="";
 
     @GET("popular")
     Call<MovieAPIResponse>getPopularMovies(
