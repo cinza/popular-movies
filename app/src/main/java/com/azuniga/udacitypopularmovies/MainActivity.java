@@ -163,6 +163,8 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
                 break;
             case "favorites":
                 favSelected=true;
+                menu.findItem(R.id.topRatedMenu).setChecked(false);
+                menu.findItem(R.id.popularMenu).setChecked(false);
                 menu.findItem(R.id.action_favorite).setIcon(getResources().getDrawable(R.drawable.ic_favorite_active));
 
                 break;
@@ -199,6 +201,8 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
             case R.id.action_favorite:
                 loadFavoritesMovies();
                 favSelected=true;
+                menu.findItem(R.id.topRatedMenu).setChecked(false);
+                menu.findItem(R.id.popularMenu).setChecked(false);
                 item.setIcon(getResources().getDrawable(R.drawable.ic_favorite_active));
                 editorPreference.putString(SortBy, "favorites");
                 break;

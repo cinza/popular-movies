@@ -6,4 +6,6 @@
     <string name="top_rated">Top Rated</string>
     <string name="backdrop">backdrop_image</string>
     <string name="favorite">favorite</string>
+    <string name="trailers_title">Watch Trailers</string>
+    <string name="reviewa_title">Reviews</string>
 </resources>
